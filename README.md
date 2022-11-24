@@ -1,7 +1,8 @@
 # Near-Optimal Multi-Agent Learning for Safe Coverage Control
 
-The repository contains all code and experiments for MacOpt and SafeMac. Link to the [paper](https://arxiv.org/abs/2210.06380)
+The repository contains all code and experiments for MacOpt and SafeMac. Link to the [paper](https://arxiv.org/abs/2210.06380).
 
+&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;<img src="https://user-images.githubusercontent.com/37489792/203668279-2e3566b0-c34b-4cb0-8bf1-19fc05c5c753.png" height="250">&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
 
 ## Dependencies
 1. The code is tested on Python 3.8.5 and 3.8.10
