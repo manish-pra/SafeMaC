@@ -1,6 +1,6 @@
 # Near-Optimal Multi-Agent Learning for Safe Coverage Control
 
-The repository contains all code and experiments for MacOpt and SafeMac.
+The repository contains all code and experiments for MacOpt and SafeMac. Link to the [paper](https://arxiv.org/abs/2210.06380)
 
 
 ## Dependencies
