@@ -1,0 +1,50 @@
+env:
+  start: -2
+  step_size: 0.1
+  shape:
+    x :  30
+    y :  30 
+  n_players : 3
+  Cx_lengthscale : 2
+  Cx_noise : 0.001
+  Fx_lengthscale : 2
+  Fx_noise : 0.001
+  Cx_beta : 1.5 # only for visu
+  Fx_beta : 1.5
+  generate: False   # True, False, walls, None: use some fixed save path
+  env_file_name: 'env_data.pkl'
+  cov_module: 'Matern'     #'Matern', Sq_exp, 'Poly'
+
+agent:
+  Lc : 1.5
+  explore_exploit_strategy : 1 # 0: Bernaulli, 1: Directly maximizing coverage obj, 2: 2 stage
+  Cx_lengthscale : 2
+  Cx_noise : 0.007
+  Fx_lengthscale : 2  #for not fully exploring keep it at 3.25 and noise at 0.1
+  Fx_noise : 0.001
+  Cx_beta : 1.5 # 1.5
+  Fx_beta : 2.0 #1.5
+  mean_shift_val : 2
+  use_goose: True
+  obs_model : "disc_max_pt"   # disc_center, full_disc, 2 disc_max_pt uncertainity, Bernoulli
+  cov_module: 'Matern'     #'Matern', Sq_exp
+  recommend: 'UCB'   # 'UCB', 'LCB' 
+  Two_stage: False
+  sol_domain: "opti"  # keep 2 stage as false
+
+common:
+  dim : 2
+  constraint : 0.6
+  epsilon : 0.25
+  disk_size : 5
+  # disk_size*step_size = disk volume
+
+algo:
+  n_CI_samples : 1
+  n_iter: 300
+  eps_density_thresh: 0.5 #0.38 
+  goose_steps: 300
+
+experiment:
+  name: "exploit" # "Bernoulli", "2stage"
+  generate_regret_plot : True
