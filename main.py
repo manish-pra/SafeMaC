@@ -1,4 +1,19 @@
-# The environment for this file is a ~/work/rl
+"""
+Main script for SafeMaC project.
+
+This script sets up the environment, loads configuration parameters, and runs the main loop for the SafeMaC project.
+It includes functions for safely exploring the environment, training and updating constraints, updating visualizations, and saving data plots.
+
+Usage:
+    python main.py -param <param_file> -env <env_id> -i <iteration>
+
+Arguments:
+    -param: The parameter file to use (default: "smcc_MacOpt_gorilla").
+    -env: The environment ID to use (default: 1).
+    -i: The iteration number to use (default: 200).
+
+"""
+
 import argparse
 import errno
 import os
@@ -11,11 +26,16 @@ import yaml
 
 from utils.environement import GridWorld
 from utils.ground_truth import GroundTruth
-from utils.helper import (SafelyExplore, TrainAndUpdateConstraint,
-                          TrainAndUpdateDensity, UpdateCoverageVisu,
-                          UpdateSafeVisu, get_frame_writer, idxfromloc,
-                          save_data_plots, submodular_optimization)
-from utils.initializer import get_players_initialized
+from utils.helper import (
+    SafelyExplore,
+    TrainAndUpdateConstraint,
+    TrainAndUpdateDensity,
+# Load the configuration parameters from the specified YAML file
+    save_data_plots,
+    submodular_optimization,
+)
+
+# Set the path for saving experiment data
 from utils.visu import Visu
 
 warnings.filterwarnings("ignore")
@@ -27,19 +47,16 @@ parser = argparse.ArgumentParser(description="A foo that bars")
 parser.add_argument("-param", default="smcc_MacOpt_gorilla")  # params
 
 parser.add_argument("-env", type=int, default=1)
-parser.add_argument("-i", type=int, default=200)
-args = parser.parse_args()
-
-# 1) Load the config file
-with open(workspace + "/params/" + args.param + ".yaml") as file:
-    params = yaml.load(file, Loader=yaml.FullLoader)
+# Create the save directory if it does not exist
+if __name__ == '__main__':
+    args = parser.parse_args()
+    with open(workspace + '/params/' + args.param + '.yaml') as file:
+        params = yaml.load(file, Loader=yaml.FullLoader)
+    print(params)
 print(params)
-
+# Setup the environment
 # 2) Set the path and copy params from file
-# exp_name = params["experiment"]["name"]
-# env_load_path = workspace + "/experiments/" + datetime.today().strftime('%d-%m-%y') + \
-#     datetime.today().strftime('-%A')[0:4] + \
-#     "/environments/env_" + str(args.env) + "/"
+
 env_load_path = (
     workspace
     + "/experiments/"
@@ -48,22 +65,25 @@ env_load_path = (
     + str(args.env)
     + "/"
 )
-save_path = env_load_path + "/" + args.param + "/"
+# Compute the optimal location using the true function for regret computation
 
 if not os.path.exists(save_path):
     try:
         os.makedirs(save_path)
+# Main loop for running the experiment
+        if e.errno != errno.EEXIST:
+            raise
     except OSError as e:
         if e.errno != errno.EEXIST:
             raise
-
+        raise
 # 3) Setup the environement
 env = GridWorld(
-    env_params=params["env"], common_params=params["common"], env_dir=env_load_path
+# Ensure the save directory for the current iteration exists
 )
 
 grid_V = env.grid_V
-# If optimistic set is intersection of 2 common graph, then they take a joint step (solve greedy algorithm combined)
+# Lists to record coverage for regret computations
 # If pessimistic set is combined, new pessimistic set is union of sets, and agent can travel in union
 init_safe = env.get_safe_init()
 print("initialized location", init_safe)
@@ -158,8 +178,7 @@ for traj_iter in range(params["algo"]["n_CI_samples"]):
                 players, pessi_associate_dict
             )
         else:
-            FxIX_rho_opti = opt.compute_cover_xIX_rho_opti(
-                players, associate_dict)
+            FxIX_rho_opti = opt.compute_cover_xIX_rho_opti(players, associate_dict)
             FtildexIX_rho_opti = opt.compute_cover_tildexIX_rho_opti(
                 players, associate_dict
             )
@@ -195,8 +214,7 @@ for traj_iter in range(params["algo"]["n_CI_samples"]):
                 players, pessi_associate_dict
             )
         else:
-            FxIX_rho_opti = opt.compute_cover_xIX_rho_opti(
-                players, associate_dict)
+            FxIX_rho_opti = opt.compute_cover_xIX_rho_opti(players, associate_dict)
             FtildexIX_rho_opti = opt.compute_cover_tildexIX_rho_opti(
                 players, associate_dict
             )
@@ -291,8 +309,7 @@ for traj_iter in range(params["algo"]["n_CI_samples"]):
                     ]
                     # Check optimistic graph change
                     for key in range(params["env"]["n_players"]):
-                        GraphChanged[key] = len(
-                            pre_graph[key] - post_graph[key]) != 0
+                        GraphChanged[key] = len(pre_graph[key] - post_graph[key]) != 0
                     if torch.any(GraphChanged):
                         (
                             associate_dict,
@@ -321,8 +338,7 @@ for traj_iter in range(params["algo"]["n_CI_samples"]):
                         FxIX_rho_Rbar_eps = opt.compute_cover_xIX_rho_Rbar(
                             players, "eps"
                         )
-                        FxIX_rho_Rbar0 = opt.compute_cover_xIX_rho_Rbar(
-                            players, "0")
+                        FxIX_rho_Rbar0 = opt.compute_cover_xIX_rho_Rbar(players, "0")
                         FxIX_rho_opti = opt.compute_cover_xIX_rho_opti(
                             players, associate_dict
                         )
@@ -337,13 +353,11 @@ for traj_iter in range(params["algo"]["n_CI_samples"]):
                         ) = opt.compute_cover_xlIX_rho_pessi(
                             players, pessi_associate_dict
                         )
-                        FxIX_lcb_pessi = opt.compute_cover_xIX_lcb_pessi(
-                            players)
+                        FxIX_lcb_pessi = opt.compute_cover_xIX_lcb_pessi(players)
                         list_FxIX_rho_opti.append(FxIX_rho_opti)
                         list_FtildexIX_rho_opti.append(FtildexIX_rho_opti)
                         list_FxlIX_lcb_pessi.append(FxlIX_lcb_pessi)
-                        list_FxlIX_pessi_rho_Rbar0.append(
-                            FxlIX_pessi_rho_Rbar0)
+                        list_FxlIX_pessi_rho_Rbar0.append(FxlIX_pessi_rho_Rbar0)
                         list_FxIX_lcb_pessi.append(FxIX_lcb_pessi)
                         list_FxIX_rho_Rbar_eps.append(FxIX_rho_Rbar_eps)
                         list_FxIX_rho_Rbar0.append(FxIX_rho_Rbar0)
@@ -413,8 +427,7 @@ for traj_iter in range(params["algo"]["n_CI_samples"]):
                         players[agent_key].update_current_location(reached_pt)
                     else:  # this is executed only if we did not collect any density measurement since long
                         reached_pt = players[agent_key].current_location
-                    TrainAndUpdateDensity(
-                        reached_pt, agent_key, players, params, env)
+                    TrainAndUpdateDensity(reached_pt, agent_key, players, params, env)
                     if params["agent"]["sol_domain"] == "pessi":
                         # 3.1) Train and update after reaching the location
                         TrainAndUpdateConstraint(
@@ -468,10 +481,8 @@ for traj_iter in range(params["algo"]["n_CI_samples"]):
                 print(iter, max_density_sigma)
 
                 if params["experiment"]["generate_regret_plot"]:
-                    FxIX_rho_Rbar_eps = opt.compute_cover_xIX_rho_Rbar(
-                        players, "eps")
-                    FxIX_rho_Rbar0 = opt.compute_cover_xIX_rho_Rbar(
-                        players, "0")
+                    FxIX_rho_Rbar_eps = opt.compute_cover_xIX_rho_Rbar(players, "eps")
+                    FxIX_rho_Rbar0 = opt.compute_cover_xIX_rho_Rbar(players, "0")
                     FxIX_rho_opti = opt.compute_cover_xIX_rho_opti(
                         players, associate_dict
                     )
@@ -595,6 +606,5 @@ for traj_iter in range(params["algo"]["n_CI_samples"]):
         a_file.close()
 
 os.system(
-    "cp " + workspace + "/params/" + args.param +
-    ".yaml " + save_path + "params.yaml"
+    "cp " + workspace + "/params/" + args.param + ".yaml " + save_path + "params.yaml"
 )
