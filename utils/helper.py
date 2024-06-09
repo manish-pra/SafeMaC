@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as manimation
 import numpy as np
 
-from copy import copy, deepcopy
+
 import pickle
 
 import networkx.algorithms.isomorphism as iso
