@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.interpolate import interp2d
+from scipy.interpolate import RectBivariateSpline
 import math
 from pathlib import Path
 from openweathermap.fetch_data import load_data
@@ -48,12 +48,20 @@ class GridFunction(object):
             function = self.base_function
         n, m = function.shape
         x_factor, y_factor = factors
-        x = np.linspace(0, n, int(x_factor * n))
-        y = np.linspace(0, m, int(y_factor * m))
 
-        f = interp2d(range(n), range(n), function)
-        upsampled = f(x, y)
-        self.current_function = upsampled.reshape((x.size, y.size))
+        x_orig = np.arange(n)
+        y_orig = np.arange(m)
+
+        x_new = np.linspace(0, n - 1, int(x_factor * n))
+        y_new = np.linspace(0, m - 1, int(y_factor * m))
+
+        # Determine k based on the dimensions of the function
+        kx = min(3, n - 1)
+        ky = min(3, m - 1)
+
+        f = RectBivariateSpline(x_orig, y_orig, function, kx=kx, ky=ky)
+        upsampled = f(x_new, y_new)
+        self.current_function = upsampled
 
     def downsample(self, current: bool = True,
                    deltas: Tuple = (2, 2),
